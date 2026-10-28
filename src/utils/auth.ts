@@ -7,6 +7,10 @@ export const setAccessToken = (token: string) => {
   //setItem lưu trữ giá trị token vào localStorage với key là 'access_token'
 }
 
+export const setRefetchToken = (token: string) => {
+  localStorage.setItem('refresh_token', token)
+}
+
 export const setProfile = (profile: User) => {
   localStorage.setItem('profile', JSON.stringify(profile))
   //JSON.stringify chuyển object thành chuỗi JSON để lưu trữ trong localStorage
@@ -14,6 +18,10 @@ export const setProfile = (profile: User) => {
 
 export const getAccessToken = () => {
   return localStorage.getItem('access_token')
+}
+
+export const getRefreshToken = () => {
+  return localStorage.getItem('refresh_token')
 }
 
 export const getProfile = () => {

@@ -1,14 +1,16 @@
 import type { AxiosError, AxiosInstance } from 'axios'
 import axios from 'axios'
-import { clearStorage, getAccessToken, setAccessToken } from './auth'
+import { clearStorage, getAccessToken, getRefreshToken, setAccessToken, setRefetchToken } from './auth'
 import type { RegisterAndLoginResponse } from '~/types/auth.type'
 import { toast } from 'react-toastify'
 import config from '~/contexts/config.contexts'
 class Http {
   instance: AxiosInstance
   private accessToken: string
+  private refreshToken: string
   constructor() {
     this.accessToken = getAccessToken() || ''
+    this.refreshToken = getRefreshToken() || ''
     this.instance = axios.create({
       baseURL: config.BASEURL,
       timeout: 10000, //nghia là nếu request không được phản hồi trong vòng 10 giây thì sẽ bị hủy
@@ -20,9 +22,11 @@ class Http {
     this.instance.interceptors.request.use(
       //chạy trước khi gửi request
       (config) => {
+        console.log(config)
         if (this.accessToken && config.headers) {
           //kiểm tra xem accessToken có tồn tại và config.headers có tồn tại hay không
           config.headers.Authorization = `Bearer ${this.accessToken}` //nếu có thì thêm accessToken vào header của request
+
           return config
         }
         return config //nếu không có accessToken thì trả về config mà không thêm gì vào header
@@ -37,7 +41,9 @@ class Http {
         const url = response.config.url
         if (url?.endsWith('/login') || url?.endsWith('/register')) {
           this.accessToken = (response.data as RegisterAndLoginResponse).result.acess_token
+          this.refreshToken = (response.data as RegisterAndLoginResponse).result.refresh_token
           setAccessToken(this.accessToken)
+          setRefetchToken(this.refreshToken)
           // try {
           //   const profileResponse = await this.instance.get('/users/me')
           // setProfile(profileResponse.data.result)
@@ -46,6 +52,7 @@ class Http {
           // }
         } else if (url?.endsWith('/logout')) {
           this.accessToken = ''
+          this.refreshToken = ''
           clearStorage()
         }
         return response
