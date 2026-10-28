@@ -20,3 +20,11 @@ export interface errorResponse {
     [keyof in string]: FieldError
   }
 }
+
+export type getMeResponse = SuccessReponseApi<{
+  _id: string
+  name: string
+  email: string
+  date_of_birth: string
+  username: string
+}>

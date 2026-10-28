@@ -1,18 +1,30 @@
+import { yupResolver } from '@hookform/resolvers/yup'
 import { useMutation } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import authApi from '~/apis/auth.api'
 import logoImg from '~/imgs/a.png'
+import { registerRules } from '~/rules/auth.rule'
 import type { errorResponse } from '~/types/auth.type'
+import { setProfile } from '~/utils/auth'
 import { isAxiosUnprocessableEntityError } from '~/utils/utils'
+
+const loginSchema = registerRules.pick(['email', 'password'])
 
 interface FormData {
   email: string
   password: string
 }
 export default function Login() {
-  const { register, handleSubmit, setError } = useForm<FormData>()
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors }
+  } = useForm<FormData>({
+    resolver: yupResolver(loginSchema)
+  })
 
   const loginMutation = useMutation({
     mutationFn: (body: FormData) => authApi.loginApi(body)
@@ -22,7 +34,10 @@ export default function Login() {
 
   const onSubmit = handleSubmit((data) => {
     loginMutation.mutate(data, {
-      onSuccess: () => {
+      onSuccess: async () => {
+        const res = await authApi.getMeApi()
+        const { _id, date_of_birth, email, name, username } = res.data.result
+        setProfile({ _id, date_of_birth, email, name, username })
         navigate('/')
         toast.success('Đăng nhập thành công !')
       },
@@ -93,16 +108,6 @@ export default function Login() {
                 </svg>
                 <span>Đăng nhập bằng Google</span>
               </button>
-
-              <button
-                type='button'
-                className='w-full flex items-center justify-center gap-3 py-2.5 px-4 rounded-full bg-gray-800 hover:bg-gray-700 text-white transition-all duration-150 active:scale-[0.98] shadow-sm font-medium'
-              >
-                <svg className='w-4 h-4 fill-current' viewBox='0 0 24 24'>
-                  <path d='M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.63-.77 1.06-1.85.94-2.92-1 .04-2.14.67-2.81 1.44-.59.67-1.1 1.77-.96 2.82 1.12.09 2.22-.57 2.83-1.34z' />
-                </svg>
-                <span>Tiếp tục với Apple ID</span>
-              </button>
             </div>
 
             {/* Divider */}
@@ -127,10 +132,12 @@ export default function Login() {
                     placeholder='nguyenhoanbao4@gmail.com'
                     className='w-full bg-gray-800 px-4 py-2.5 rounded-full text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-gray-700 transition-all duration-150 text-[15px]'
                   />
+
                   <span className='material-symbols-outlined text-gray-400 text-[20px] absolute right-4 pointer-events-none'>
                     alternate_email
                   </span>
                 </div>
+                {errors.email?.message && <p>{errors.email.message}</p>}
               </div>
 
               {/* Password */}
@@ -157,6 +164,7 @@ export default function Login() {
                     <span className='material-symbols-outlined text-[20px]'>visibility</span>
                   </button>
                 </div>
+                {errors.password?.message && <p>{errors.password?.message}</p>}
               </div>
 
               {/* Remember me */}
@@ -181,7 +189,7 @@ export default function Login() {
             </form>
 
             {/* 2FA Info */}
-            <div className='mt-6 p-3 rounded-xl bg-gray-800/50 flex items-center gap-3'>
+            {/* <div className='mt-6 p-3 rounded-xl bg-gray-800/50 flex items-center gap-3'>
               <div className='w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0 text-green-400'>
                 <span className='material-symbols-outlined text-[18px]'>verified_user</span>
               </div>
@@ -189,7 +197,7 @@ export default function Login() {
                 <span className='text-xs font-semibold text-green-400'>Xác thực 2 lớp (2FA) được kích hoạt</span>
                 <span className='text-[11px] text-gray-400'>Mọi phiên đăng nhập đều được mã hóa bằng SHA-256.</span>
               </div>
-            </div>
+            </div> */}
 
             {/* Footer */}
             <div className='mt-6 pt-5 border-t border-gray-800 flex items-center justify-center gap-1.5 relative z-10'>

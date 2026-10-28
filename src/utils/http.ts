@@ -1,7 +1,7 @@
 import type { AxiosError, AxiosInstance } from 'axios'
 import axios from 'axios'
 import { clearStorage, getAccessToken, setAccessToken } from './auth'
-import type { RegisterResponse } from '~/types/auth.type'
+import type { RegisterAndLoginResponse } from '~/types/auth.type'
 import { toast } from 'react-toastify'
 import config from '~/contexts/config.contexts'
 class Http {
@@ -22,7 +22,7 @@ class Http {
       (config) => {
         if (this.accessToken && config.headers) {
           //kiểm tra xem accessToken có tồn tại và config.headers có tồn tại hay không
-          config.headers.Authorization = this.accessToken //nếu có thì thêm accessToken vào header của request
+          config.headers.Authorization = `Bearer ${this.accessToken}` //nếu có thì thêm accessToken vào header của request
           return config
         }
         return config //nếu không có accessToken thì trả về config mà không thêm gì vào header
@@ -36,10 +36,14 @@ class Http {
       async (response) => {
         const url = response.config.url
         if (url?.endsWith('/login') || url?.endsWith('/register')) {
-          this.accessToken = (response.data as RegisterResponse).result.acess_token
+          this.accessToken = (response.data as RegisterAndLoginResponse).result.acess_token
           setAccessToken(this.accessToken)
-          // const profileResponse = await this.instance.get('/users/me')
+          // try {
+          //   const profileResponse = await this.instance.get('/users/me')
           // setProfile(profileResponse.data.result)
+          // } catch (error) {
+          //   console.log('Lấy profile thất bại:', error)
+          // }
         } else if (url?.endsWith('/logout')) {
           this.accessToken = ''
           clearStorage()

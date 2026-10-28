@@ -1,37 +1,45 @@
 import { useMutation } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import authApi from '~/apis/auth.api'
 import type { errorResponse } from '~/types/auth.type'
 import { isAxiosUnprocessableEntityError } from '~/utils/utils'
 import logoImg from '~/imgs/a.png'
 import { useEffect } from 'react'
-interface FormData {
+import { yupResolver } from '@hookform/resolvers/yup'
+import { registerRules } from '~/rules/auth.rule'
+import type { Resolver } from 'react-hook-form'
+
+// type RegisterBody = Omit<FormData, 'dob_day' | 'dob_month' | 'dob_year'>
+interface RegisterBody {
   name: string
   email: string
   password: string
   confirm_Password: string
   date_Of_Birth: string
+}
 
+type FormData = RegisterBody & {
   dob_day?: string
   dob_month?: string
   dob_year?: string
 }
-
 export default function Register() {
   const {
     register,
     handleSubmit,
     setError,
     watch,
-    setValue
-    // formState: { errors }
+    setValue,
+    formState: { errors }
   } = useForm<FormData>({
-    defaultValues: { dob_day: '', dob_month: '', dob_year: '' }
+    defaultValues: { dob_day: '', dob_month: '', dob_year: '' },
+    resolver: yupResolver(registerRules) as Resolver<FormData>
   })
 
   // Theo dõi sự thay đổi của 3 ô này
+  // eslint-disable-next-line react-hooks/incompatible-library
   const watchDay = watch('dob_day')
   const watchMonth = watch('dob_month')
   const watchYear = watch('dob_year')
@@ -40,12 +48,14 @@ export default function Register() {
   useEffect(() => {
     if (watchDay && watchMonth && watchYear) {
       // Ghép thành dạng YYYY-MM-DD
-      setValue('date_Of_Birth', `${watchYear}-${watchMonth}-${watchDay}`)
+      setValue('date_Of_Birth', `${watchYear}-${watchMonth}-${watchDay}`, { shouldValidate: true })
+    } else {
+      setValue('date_Of_Birth', '')
     }
   }, [watchDay, watchMonth, watchYear, setValue])
 
   const registerMutation = useMutation({
-    mutationFn: (body: FormData) => authApi.register(body)
+    mutationFn: (body: RegisterBody) => authApi.register(body)
   })
 
   const navigate = useNavigate()
@@ -138,31 +148,6 @@ export default function Register() {
                 </svg>
                 <span>Đăng ký bằng Google</span>
               </button>
-
-              <div className='grid grid-cols-2 gap-2.5'>
-                <button
-                  type='button'
-                  className='flex items-center justify-center gap-2 py-2 px-3 rounded-full bg-gray-800 hover:bg-gray-700 text-white transition-all duration-150 active:scale-[0.98] font-medium text-sm'
-                >
-                  <svg className='w-4 h-4 fill-current' viewBox='0 0 24 24'>
-                    <path d='M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.61-.75 1.04-1.8 0.92-2.87-.93.04-2.02.63-2.66 1.38-.56.65-.99 1.7-0.87 2.73 1.04.08 2-.49 2.61-1.24z' />
-                  </svg>
-                  <span>Apple</span>
-                </button>
-                <button
-                  type='button'
-                  className='flex items-center justify-center gap-2 py-2 px-3 rounded-full bg-gray-800 hover:bg-gray-700 text-white transition-all duration-150 active:scale-[0.98] font-medium text-sm'
-                >
-                  <svg className='w-4 h-4 fill-current' viewBox='0 0 24 24'>
-                    <path
-                      clipRule='evenodd'
-                      fillRule='evenodd'
-                      d='M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z'
-                    />
-                  </svg>
-                  <span>GitHub</span>
-                </button>
-              </div>
             </div>
 
             {/* Divider */}
@@ -195,6 +180,7 @@ export default function Register() {
                     person
                   </span>
                 </div>
+                {errors.name?.message && <p>{errors.name?.message}</p>}
               </div>
 
               {/* Email */}
@@ -219,6 +205,7 @@ export default function Register() {
                     mail
                   </span>
                 </div>
+                {errors.email?.message && <p>{errors.email?.message}</p>}
               </div>
 
               {/* Password */}
@@ -247,6 +234,7 @@ export default function Register() {
                     <span className='material-symbols-outlined text-[20px]'>visibility</span>
                   </button>
                 </div>
+                {errors.password?.message && <p>{errors.password?.message}</p>}
                 {/* Strength meter */}
                 <div className='grid grid-cols-4 gap-1.5 mt-1'>
                   <div className='h-1 rounded-full bg-gray-700' />
@@ -275,9 +263,9 @@ export default function Register() {
                     className='w-full bg-gray-800 pl-4 pr-11 py-2.5 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-gray-700 transition-all duration-150 text-[15px]'
                   />
                   <div className='absolute right-3 flex items-center gap-1'>
-                    <span className='material-symbols-outlined text-gray-400 text-[20px] transition-colors'>
+                    {/* <span className='material-symbols-outlined text-green-400 text-[20px] transition-colors'>
                       check_circle
-                    </span>
+                    </span> */}
                     <button
                       type='button'
                       aria-label='Toggle confirm password visibility'
@@ -287,6 +275,7 @@ export default function Register() {
                     </button>
                   </div>
                 </div>
+                {errors.confirm_Password?.message && <p>{errors.confirm_Password?.message}</p>}
               </div>
 
               {/* Date of birth */}
@@ -365,7 +354,7 @@ export default function Register() {
 
                 {/* Trường ẩn chứa giá trị ngày sinh chuẩn để gửi API */}
                 <input type='hidden' {...register('date_Of_Birth')} />
-
+                {errors.date_Of_Birth?.message && <p>{errors.date_Of_Birth?.message}</p>}
                 <p className='text-xs leading-relaxed text-gray-500 mt-0.5'>
                   Thông tin này sẽ không được hiển thị công khai. Hãy xác nhận độ tuổi của bạn ngay cả khi tài khoản này
                   dành cho doanh nghiệp hoặc thú cưng.
@@ -404,21 +393,18 @@ export default function Register() {
                 className='w-full mt-3 py-3 px-6 rounded-full bg-blue-500 hover:bg-blue-400 active:scale-[0.98] text-white font-semibold shadow-lg shadow-blue-500/20 transition-all duration-150 flex items-center justify-center gap-2 group'
               >
                 <span>Đăng ký tài khoản</span>
-                <span className='material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform'>
-                  arrow_forward
-                </span>
               </button>
             </form>
 
             {/* Footer */}
             <div className='mt-6 pt-5 border-t border-gray-800 flex items-center justify-center gap-1.5 relative z-10'>
-              <span className='text-sm text-gray-500'>Đã có tài khoản?</span>
-              <a
-                href='#'
+              <span className='text-sm text-gray-500'>Đã có tài khoản VibeOn?</span>
+              <Link
+                to='/login'
                 className='text-sm font-semibold text-blue-400 hover:text-blue-300 hover:underline transition-colors'
               >
                 Đăng nhập ngay
-              </a>
+              </Link>
             </div>
           </div>
         </div>

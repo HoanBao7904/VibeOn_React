@@ -1,4 +1,4 @@
-import type { RegisterAndLoginResponse } from '~/types/auth.type'
+import type { getMeResponse, RegisterAndLoginResponse } from '~/types/auth.type'
 import { http } from '~/utils/http'
 
 const authApi = {
@@ -7,6 +7,9 @@ const authApi = {
   },
   loginApi(body: { email: string; password: string }) {
     return http.post<RegisterAndLoginResponse>('/users/login', body)
+  },
+  getMeApi() {
+    return http.get<getMeResponse>('/users/me')
   }
 }
 

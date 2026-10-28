@@ -2,7 +2,7 @@ export interface User {
   _id?: string
   name?: string
   email?: string
-  date_of_birth?: Date
+  date_of_birth?: string
   password?: string
   username?: string // optional
   location?: string // optional
