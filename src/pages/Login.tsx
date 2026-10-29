@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import authApi from '~/apis/auth.api'
+import Input from '~/components/Input'
 import logoImg from '~/imgs/a.png'
 import { registerRules } from '~/rules/auth.rule'
 import type { errorResponse } from '~/types/auth.type'
@@ -125,7 +126,7 @@ export default function Login() {
                   <span>Địa chỉ Email</span>
                   <span className='text-gray-500 text-[11px] font-normal'>Bắt buộc</span>
                 </label>
-                <div className='relative flex items-center'>
+                {/* <div className='relative flex items-center'>
                   <input
                     {...register('email')}
                     type='email'
@@ -137,10 +138,19 @@ export default function Login() {
                     alternate_email
                   </span>
                 </div>
-                {errors.email?.message && <p>{errors.email.message}</p>}
+                {errors.email?.message && <p>{errors.email.message}</p>} */}
+                <Input
+                  icon='alternate_email'
+                  register={register}
+                  name='email'
+                  type='email'
+                  placeholder='nguyenhoanbao4@gmail.com'
+                  errorMessage={errors.email?.message}
+                />
               </div>
 
               {/* Password */}
+
               <div className='flex flex-col gap-1.5'>
                 <div className='flex items-center justify-between'>
                   <label htmlFor='password' className='text-sm font-medium text-gray-400'>
@@ -150,21 +160,16 @@ export default function Login() {
                     Quên mật khẩu?
                   </a>
                 </div>
-                <div className='relative flex items-center'>
-                  <input
-                    {...register('password')}
-                    type='password'
-                    placeholder='••••••••••••'
-                    className='w-full bg-gray-800 pl-4 pr-11 py-2.5 rounded-full text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-gray-700 transition-all duration-150 text-[15px]'
-                  />
-                  <button
-                    type='button'
-                    className='absolute right-4 text-gray-400 hover:text-white p-1 transition-colors'
-                  >
-                    <span className='material-symbols-outlined text-[20px]'>visibility</span>
-                  </button>
-                </div>
-                {errors.password?.message && <p>{errors.password?.message}</p>}
+
+                {/* Gọi Component Input ngắn gọn thôi */}
+                <Input
+                  name='password' // Bắt buộc phải có name
+                  register={register} // Truyền register
+                  rules={{ required: 'Vui lòng nhập mật khẩu' }} // Truyền rules nếu cần
+                  type='password' // Bắt buộc để hiện con mắt
+                  placeholder='••••••••••••'
+                  errorMessage={errors.password?.message} // Truyền lỗi vào
+                />
               </div>
 
               {/* Remember me */}

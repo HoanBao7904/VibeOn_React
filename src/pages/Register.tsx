@@ -10,6 +10,7 @@ import { useEffect } from 'react'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { registerRules } from '~/rules/auth.rule'
 import type { Resolver } from 'react-hook-form'
+import Input from '~/components/Input'
 
 // type RegisterBody = Omit<FormData, 'dob_day' | 'dob_month' | 'dob_year'>
 interface RegisterBody {
@@ -168,7 +169,15 @@ export default function Register() {
                   <span>Họ và tên / Tên hiển thị</span>
                   <span className='text-gray-500 text-[11px] font-normal'>Bắt buộc</span>
                 </label>
-                <div className='relative flex items-center'>
+                <Input
+                  register={register}
+                  name='name'
+                  type='text'
+                  errorMessage={errors.name?.message}
+                  icon='person'
+                  placeholder='Ví dụ: baonguyendev1'
+                />
+                {/* <div className='relative flex items-center'>
                   <input
                     {...register('name')}
                     type='text'
@@ -180,7 +189,7 @@ export default function Register() {
                     person
                   </span>
                 </div>
-                {errors.name?.message && <p>{errors.name?.message}</p>}
+                {errors.name?.message && <p>{errors.name?.message}</p>} */}
               </div>
 
               {/* Email */}
@@ -192,7 +201,15 @@ export default function Register() {
                   <span>Địa chỉ Email</span>
                   <span className='text-gray-500 text-[11px] font-normal'>Định dạng hợp lệ</span>
                 </label>
-                <div className='relative flex items-center'>
+                <Input
+                  register={register}
+                  name='email'
+                  type='email'
+                  errorMessage={errors.email?.message}
+                  icon='mail'
+                  placeholder='nguyenhoanbao4@gmail.com'
+                />
+                {/* <div className='relative flex items-center'>
                   <input
                     {...register('email')}
                     type='email'
@@ -205,7 +222,7 @@ export default function Register() {
                     mail
                   </span>
                 </div>
-                {errors.email?.message && <p>{errors.email?.message}</p>}
+                {errors.email?.message && <p>{errors.email?.message}</p>} */}
               </div>
 
               {/* Password */}
@@ -217,7 +234,15 @@ export default function Register() {
                   <span>Mật khẩu</span>
                   <span className='text-gray-500 text-[11px] font-normal'>Tối thiểu 8 ký tự</span>
                 </label>
-                <div className='relative flex items-center'>
+                <Input
+                  register={register}
+                  name='password'
+                  type='password'
+                  errorMessage={errors.password?.message}
+                  icon='visibility'
+                  placeholder='Nhập mật khẩu an toàn'
+                />
+                {/* <div className='relative flex items-center'>
                   <input
                     {...register('password')}
                     type='password'
@@ -233,8 +258,8 @@ export default function Register() {
                   >
                     <span className='material-symbols-outlined text-[20px]'>visibility</span>
                   </button>
-                </div>
-                {errors.password?.message && <p>{errors.password?.message}</p>}
+                </div> */}
+                {/* {errors.password?.message && <p>{errors.password?.message}</p>} */}
                 {/* Strength meter */}
                 <div className='grid grid-cols-4 gap-1.5 mt-1'>
                   <div className='h-1 rounded-full bg-gray-700' />
@@ -253,7 +278,15 @@ export default function Register() {
                   <span>Xác nhận mật khẩu</span>
                   <span className='text-gray-500 text-[11px] font-normal'>Khớp với mật khẩu trên</span>
                 </label>
-                <div className='relative flex items-center'>
+                <Input
+                  register={register}
+                  name='confirm_Password'
+                  type='password'
+                  errorMessage={errors.confirm_Password?.message}
+                  icon='visibility_off'
+                  placeholder='Nhập lại mật khẩu'
+                />
+                {/* <div className='relative flex items-center'>
                   <input
                     id='reg_confirm_password'
                     {...register('confirm_Password')}
@@ -263,9 +296,7 @@ export default function Register() {
                     className='w-full bg-gray-800 pl-4 pr-11 py-2.5 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-gray-700 transition-all duration-150 text-[15px]'
                   />
                   <div className='absolute right-3 flex items-center gap-1'>
-                    {/* <span className='material-symbols-outlined text-green-400 text-[20px] transition-colors'>
-                      check_circle
-                    </span> */}
+                   
                     <button
                       type='button'
                       aria-label='Toggle confirm password visibility'
@@ -275,7 +306,7 @@ export default function Register() {
                     </button>
                   </div>
                 </div>
-                {errors.confirm_Password?.message && <p>{errors.confirm_Password?.message}</p>}
+                {errors.confirm_Password?.message && <p>{errors.confirm_Password?.message}</p>} */}
               </div>
 
               {/* Date of birth */}
@@ -354,7 +385,9 @@ export default function Register() {
 
                 {/* Trường ẩn chứa giá trị ngày sinh chuẩn để gửi API */}
                 <input type='hidden' {...register('date_Of_Birth')} />
-                {errors.date_Of_Birth?.message && <p>{errors.date_Of_Birth?.message}</p>}
+                {errors.date_Of_Birth?.message && (
+                  <p className='text-xs text-red-500 mt-1 px-2'>{errors.date_Of_Birth?.message}</p>
+                )}
                 <p className='text-xs leading-relaxed text-gray-500 mt-0.5'>
                   Thông tin này sẽ không được hiển thị công khai. Hãy xác nhận độ tuổi của bạn ngay cả khi tài khoản này
                   dành cho doanh nghiệp hoặc thú cưng.

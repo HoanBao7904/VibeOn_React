@@ -3,6 +3,7 @@ import Register from './pages/Register'
 import Login from './pages/Login'
 import Me from './pages/Me'
 import MainLayout from './layout/MainLayout/MainLayout'
+import EditProfile from './pages/EditProfile'
 
 export default function useRouteElements() {
   const routeElement = useRoutes([
@@ -21,6 +22,10 @@ export default function useRouteElements() {
           <Me />
         </MainLayout>
       )
+    },
+    {
+      path: '/me/edit/',
+      element: <EditProfile />
     }
   ])
   return routeElement
