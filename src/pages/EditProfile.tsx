@@ -1,34 +1,154 @@
+import { yupResolver } from '@hookform/resolvers/yup'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { toast } from 'react-toastify'
+import authApi from '~/apis/auth.api'
+import EditableField from '~/components/EditableField/EditableField'
+import { updateMeRule, type UpdateFormData } from '~/rules/auth.rule'
+import type { errorResponse } from '~/types/auth.type'
+import { setProfile } from '~/utils/auth'
+import { isAxiosUnprocessableEntityError } from '~/utils/utils'
+
+export type EditTableField =
+  'name' | 'date_of_birth' | 'bio' | 'location' | 'website' | 'username' | 'avatar' | 'cover_photo'
 
 export default function EditProfile() {
-  // State quản lý dữ liệu form để render Live JSON
-  const [editingField, setEditingField] = useState<string | null>(null)
-  const [formData, setFormData] = useState({
-    name: 'Hoàn Bão 79',
-    username: 'hoanbao79',
-    bio: 'I will be worth it 🚀 Building next-gen social vibes on VibeOn',
-    location: 'Khánh Hòa, Việt Nam',
-    website: 'https://vibeon.io/hoanbao79',
-    date_of_birth: '2013-01-01',
-    avatar: 'avatar_hoanbao_v2.png',
-    cover_photo: 'banner_cyber_neon.webp'
+  const [editingField, setEditingField] = useState<EditTableField | null>(null)
+
+  const queryClient = useQueryClient()
+
+  const {
+    register,
+    setError,
+    reset, //cập nhập lại value của trường đó khi hủy thao tác
+    handleSubmit
+  } = useForm<UpdateFormData>({
+    resolver: yupResolver(updateMeRule),
+    defaultValues: {
+      name: '',
+      username: '',
+      bio: '',
+      location: '',
+      website: '',
+      date_of_birth: ''
+    }
   })
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+  const { data } = useQuery({
+    queryKey: ['me'],
+    queryFn: () => authApi.getMeApi()
+  })
+  const me = data?.data.result
+
+  const updateMutation = useMutation({
+    mutationFn: authApi.patchUpdateMe
+  })
+
+  // Bấm nút Sửa: đưa form về giá trị hiện tại từ server rồi mở ô sửa
+  const handleOpenEditName = (field: EditTableField) => {
+    reset({
+      name: me?.name ?? '',
+      username: me?.username ?? '',
+      bio: me?.bio ?? '',
+      location: me?.location ?? '',
+      website: me?.website ?? '',
+      date_of_birth: me?.date_of_birth ? me.date_of_birth.slice(0, 10) : ''
+    })
+    setEditingField(field)
   }
 
-  const handleSave = (field: string) => {
-    // Gọi API PATCH ở đây (ví dụ: api.patch('/users/me', { [field]: formData[field] }))
-    console.log(`Đã lưu ${field}:`, formData[field as keyof typeof formData])
-    setEditingField(null) // Đóng form sau khi lưu
-  }
-
-  const handleCancel = () => {
+  // Bấm Hủy: bỏ phần gõ dở, đóng ô
+  const handleCancelName = () => {
+    reset({
+      name: me?.name ?? '',
+      username: me?.username ?? '',
+      bio: me?.bio ?? '',
+      location: me?.location ?? '',
+      website: me?.website ?? '',
+      date_of_birth: me?.date_of_birth ? me.date_of_birth.slice(0, 10) : ''
+    })
     setEditingField(null)
   }
 
+  // Bấm Lưu (đã qua Yup validate)
+  // const onSubmit = handleSubmit((formData) => {
+  //   if (!editingField) return
+
+  //   const field = editingField
+  //   let value = formData[field]
+
+  //   // Xử lý định dạng ngày tháng trước khi gửi lên server
+  //   if (field === 'date_of_birth' && value) {
+  //     value = new Date(value).toISOString()
+  //   }
+
+  //   updateMutation.mutate(
+  //     { [field]: value }, // Chỉ gửi đúng 1 trường đang sửa
+  //     {
+  //       onSuccess: async () => {
+  //         // Lấy lại profile mới
+  //         const res = await queryClient.fetchQuery({
+  //           queryKey: ['me'],
+  //           queryFn: () => authApi.getMeApi()
+  //         })
+  //         const updatedUser = res.data.result
+
+  //         // Cập nhật localStorage
+  //         setProfile(updatedUser)
+  //         // 1. Báo cho React Query fetch lại API /me
+  //         await queryClient.invalidateQueries({ queryKey: ['me'] })
+
+  //         setEditingField(null)
+  //         toast.success('Cập nhật thành công')
+  //       },
+  //       onError: (error) => {
+  //         if (isAxiosUnprocessableEntityError<errorResponse>(error)) {
+  //           // RHF tự bắt lỗi của Backend và hiển thị lên UI
+  //           const msg = error.response?.data.error?.[field]?.msg ?? 'Giá trị không hợp lệ'
+  //           setError(field, { message: msg })
+  //         }
+  //       }
+  //     }
+  //   )
+  // })
+  const onSubmit = handleSubmit((formData) => {
+    if (!editingField) return
+
+    const field = editingField
+    let value = formData[field]
+
+    if (field === 'date_of_birth' && value) {
+      value = new Date(value).toISOString()
+    }
+
+    updateMutation.mutate(
+      { [field]: value },
+      {
+        // 1. Nhận response từ API PATCH
+        onSuccess: async (response) => {
+          // 2. Lấy đúng cục data user mới từ API (như bạn gửi ở trên: result.value)
+          const updatedUser = response.data.result.value
+
+          // 3. Bơm thẳng vào cache của React Query để UI lập tức đổi tên
+          await queryClient.invalidateQueries({ queryKey: ['me'] })
+
+          // 4. Cập nhật localStorage
+          setProfile(updatedUser)
+
+          // 5. Đóng form và báo thành công
+          setEditingField(null)
+          toast.success('Cập nhật thành công')
+        },
+        onError: (error) => {
+          if (isAxiosUnprocessableEntityError<errorResponse>(error)) {
+            const msg = error.response?.data.error?.[field]?.msg ?? 'Giá trị không hợp lệ'
+            setError(field, { message: msg })
+          }
+        }
+      }
+    )
+  })
   return (
     <div className='flex h-full w-full overflow-hidden bg-[#0a0e14] text-[#f1f5f9] font-sans antialiased selection:bg-[#1d9bf0]/30 selection:text-white'>
       {/* BEGIN: LeftMiniSidebar */}
@@ -204,9 +324,6 @@ export default function EditProfile() {
         <div className='p-6 pb-3 sticky top-0 bg-[#111721]/90 backdrop-blur-md z-10'>
           <h1 className='text-2xl font-bold text-white tracking-tight mb-4 flex items-center justify-between'>
             <span>Cài đặt</span>
-            <span className='text-[11px] font-mono font-medium px-2 py-0.5 rounded-full bg-cyan-950/60 text-cyan-400 border border-cyan-800/40'>
-              VibeOn v2.4
-            </span>
           </h1>
           <div className='relative'>
             <span className='absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-[#94a3b8]'>
@@ -227,43 +344,6 @@ export default function EditProfile() {
         </div>
 
         <div className='px-3 pb-8 space-y-6 flex-1'>
-          {/* Nhóm: Tài khoản của bạn */}
-          <div>
-            <div className='px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-[#94a3b8]/70'>
-              Tài khoản của bạn
-            </div>
-            <div className='mt-1 p-3 rounded-2xl bg-[#161f2e]/40 border border-[#233044]/40 hover:border-[#1d9bf0]/40 transition-colors group cursor-pointer'>
-              <div className='flex items-start gap-3'>
-                <div className='p-2 rounded-xl bg-gradient-to-br from-indigo-500/20 to-blue-500/20 text-cyan-400 mt-0.5 border border-cyan-500/20 group-hover:scale-105 transition-transform'>
-                  <svg className='w-5 h-5' fill='none' stroke='currentColor' strokeWidth='2' viewBox='0 0 24 24'>
-                    <path
-                      d='M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 004 11m0 0v.5'
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                    ></path>
-                  </svg>
-                </div>
-                <div className='flex-1'>
-                  <div className='text-sm font-semibold text-white group-hover:text-[#1d9bf0] transition-colors flex items-center gap-1.5'>
-                    Vibe Account Hub
-                    <svg
-                      className='w-3.5 h-3.5 text-[#94a3b8] group-hover:translate-x-0.5 transition-transform'
-                      fill='none'
-                      stroke='currentColor'
-                      strokeWidth='2'
-                      viewBox='0 0 24 24'
-                    >
-                      <path d='M9 5l7 7-7 7' strokeLinecap='round' strokeLinejoin='round'></path>
-                    </svg>
-                  </div>
-                  <p className='text-xs text-[#94a3b8]/80 mt-1 leading-relaxed'>
-                    Mật khẩu, bảo mật, thông tin cá nhân &amp; quyền riêng tư đa nền tảng
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Nhóm: Cách bạn dùng VibeOn */}
           <div>
             <div className='px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-[#94a3b8]/70'>
@@ -424,300 +504,100 @@ export default function EditProfile() {
 
           <div className='space-y-6'>
             {/* NAME */}
-            <div className='flex flex-col gap-2'>
-              <label className='text-sm font-semibold text-white'>Tên hiển thị</label>
-              {editingField === 'name' ? (
-                <div className='flex flex-col gap-2'>
-                  <input
-                    type='text'
-                    name='name'
-                    maxLength={50}
-                    className='w-full bg-[#1a2332] border border-[#1d9bf0] rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#1d9bf0] transition'
-                    value={formData.name}
-                    onChange={handleChange}
-                  />
-                  <div className='flex justify-end gap-2'>
-                    <button
-                      onClick={handleCancel}
-                      className='px-4 py-1.5 text-xs font-medium text-[#94a3b8] hover:text-white bg-[#161f2e] rounded-lg'
-                    >
-                      Hủy
-                    </button>
-                    <button
-                      onClick={() => handleSave('name')}
-                      className='px-4 py-1.5 text-xs font-medium text-white bg-[#1d9bf0] hover:bg-sky-400 rounded-lg'
-                    >
-                      Lưu
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className='flex items-center justify-between p-4 bg-[#161f2e]/40 border border-[#233044] rounded-xl group'>
-                  <span className='text-white text-sm'>{formData.name}</span>
-                  <button
-                    onClick={() => setEditingField('name')}
-                    className='text-[#94a3b8] hover:text-[#1d9bf0] transition-colors'
-                  >
-                    <svg className='w-5 h-5' fill='none' stroke='currentColor' strokeWidth='2' viewBox='0 0 24 24'>
-                      <path
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        d='M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z'
-                      ></path>
-                    </svg>
-                  </button>
-                </div>
-              )}
-            </div>
 
+            <EditableField
+              type='text'
+              editingField='name'
+              activeEditingField={editingField}
+              register={register}
+              onsubmit={onSubmit}
+              onCancel={handleCancelName}
+              onOpenEdit={() => handleOpenEditName('name')}
+              disabled={updateMutation.isPending}
+              isLoading={updateMutation.isPending}
+              me={me}
+              label='Tên người dùng'
+            />
             {/* USERNAME */}
-            <div className='flex flex-col gap-2'>
-              <label className='text-sm font-semibold text-white'>Tên người dùng</label>
-              {editingField === 'username' ? (
-                <div className='flex flex-col gap-2'>
-                  <div className='relative flex items-center'>
-                    <span className='absolute left-3.5 text-[#94a3b8] font-mono text-sm pointer-events-none'>@</span>
-                    <input
-                      type='text'
-                      name='username'
-                      className='w-full pl-8 pr-4 py-2.5 bg-[#1a2332] border border-[#1d9bf0] rounded-xl text-white text-sm font-mono focus:outline-none focus:ring-1 focus:ring-[#1d9bf0] transition'
-                      value={formData.username}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  <div className='flex justify-end gap-2'>
-                    <button
-                      onClick={handleCancel}
-                      className='px-4 py-1.5 text-xs font-medium text-[#94a3b8] hover:text-white bg-[#161f2e] rounded-lg'
-                    >
-                      Hủy
-                    </button>
-                    <button
-                      onClick={() => handleSave('username')}
-                      className='px-4 py-1.5 text-xs font-medium text-white bg-[#1d9bf0] hover:bg-sky-400 rounded-lg'
-                    >
-                      Lưu
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className='flex items-center justify-between p-4 bg-[#161f2e]/40 border border-[#233044] rounded-xl group'>
-                  <div className='flex items-center gap-2'>
-                    <span className='text-cyan-400 font-mono text-sm'>@{formData.username}</span>
-                    <span className='text-[11px] font-medium text-emerald-400 flex items-center gap-1 bg-emerald-950/30 px-2 py-0.5 rounded'>
-                      <span className='w-1.5 h-1.5 rounded-full bg-emerald-400'></span> Khả dụng
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => setEditingField('username')}
-                    className='text-[#94a3b8] hover:text-[#1d9bf0] transition-colors'
-                  >
-                    <svg className='w-5 h-5' fill='none' stroke='currentColor' strokeWidth='2' viewBox='0 0 24 24'>
-                      <path
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        d='M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z'
-                      ></path>
-                    </svg>
-                  </button>
-                </div>
-              )}
-            </div>
+
+            <EditableField
+              type='text'
+              editingField='username'
+              activeEditingField={editingField}
+              register={register}
+              onsubmit={onSubmit}
+              onCancel={handleCancelName}
+              onOpenEdit={() => handleOpenEditName('username')}
+              disabled={updateMutation.isPending}
+              isLoading={updateMutation.isPending}
+              me={me}
+              label='Tên người dùng'
+            />
 
             {/* BIO */}
-            <div className='flex flex-col gap-2'>
-              <label className='text-sm font-semibold text-white'>Tiểu sử</label>
-              {editingField === 'bio' ? (
-                <div className='flex flex-col gap-2'>
-                  <textarea
-                    name='bio'
-                    className='w-full bg-[#1a2332] border border-[#1d9bf0] rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#1d9bf0] transition resize-none'
-                    maxLength={150}
-                    rows={3}
-                    value={formData.bio}
-                    onChange={handleChange}
-                  />
-                  <div className='flex justify-end gap-2'>
-                    <button
-                      onClick={handleCancel}
-                      className='px-4 py-1.5 text-xs font-medium text-[#94a3b8] hover:text-white bg-[#161f2e] rounded-lg'
-                    >
-                      Hủy
-                    </button>
-                    <button
-                      onClick={() => handleSave('bio')}
-                      className='px-4 py-1.5 text-xs font-medium text-white bg-[#1d9bf0] hover:bg-sky-400 rounded-lg'
-                    >
-                      Lưu
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className='flex items-start justify-between p-4 bg-[#161f2e]/40 border border-[#233044] rounded-xl group'>
-                  <span className='text-white text-sm pr-4'>{formData.bio}</span>
-                  <button
-                    onClick={() => setEditingField('bio')}
-                    className='text-[#94a3b8] hover:text-[#1d9bf0] transition-colors shrink-0'
-                  >
-                    <svg className='w-5 h-5' fill='none' stroke='currentColor' strokeWidth='2' viewBox='0 0 24 24'>
-                      <path
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        d='M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z'
-                      ></path>
-                    </svg>
-                  </button>
-                </div>
-              )}
-            </div>
+            <EditableField
+              type='text'
+              editingField='bio'
+              activeEditingField={editingField}
+              register={register}
+              onsubmit={onSubmit}
+              onCancel={handleCancelName}
+              onOpenEdit={() => handleOpenEditName('bio')}
+              disabled={updateMutation.isPending}
+              isLoading={updateMutation.isPending}
+              me={me}
+              label='Tiểu sử'
+            />
 
             {/* LOCATION & WEBSITE */}
             <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
               {/* Location */}
-              <div className='flex flex-col gap-2'>
-                <label className='text-sm font-semibold text-white'>Vị trí</label>
-                {editingField === 'location' ? (
-                  <div className='flex flex-col gap-2'>
-                    <input
-                      type='text'
-                      name='location'
-                      className='w-full bg-[#1a2332] border border-[#1d9bf0] rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#1d9bf0] transition'
-                      value={formData.location}
-                      onChange={handleChange}
-                    />
-                    <div className='flex justify-end gap-2'>
-                      <button
-                        onClick={handleCancel}
-                        className='px-3 py-1 text-xs font-medium text-[#94a3b8] hover:text-white bg-[#161f2e] rounded-lg'
-                      >
-                        Hủy
-                      </button>
-                      <button
-                        onClick={() => handleSave('location')}
-                        className='px-3 py-1 text-xs font-medium text-white bg-[#1d9bf0] hover:bg-sky-400 rounded-lg'
-                      >
-                        Lưu
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className='flex items-center justify-between p-4 bg-[#161f2e]/40 border border-[#233044] rounded-xl group'>
-                    <span className='text-white text-sm'>{formData.location}</span>
-                    <button
-                      onClick={() => setEditingField('location')}
-                      className='text-[#94a3b8] hover:text-[#1d9bf0] transition-colors'
-                    >
-                      <svg className='w-5 h-5' fill='none' stroke='currentColor' strokeWidth='2' viewBox='0 0 24 24'>
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          d='M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z'
-                        ></path>
-                      </svg>
-                    </button>
-                  </div>
-                )}
-              </div>
+
+              <EditableField
+                type='text'
+                editingField='location'
+                activeEditingField={editingField}
+                register={register}
+                onsubmit={onSubmit}
+                onCancel={handleCancelName}
+                onOpenEdit={() => handleOpenEditName('location')}
+                disabled={updateMutation.isPending}
+                isLoading={updateMutation.isPending}
+                me={me}
+                label='Vị trí'
+              />
 
               {/* Website */}
-              <div className='flex flex-col gap-2'>
-                <label className='text-sm font-semibold text-white'>Trang web</label>
-                {editingField === 'website' ? (
-                  <div className='flex flex-col gap-2'>
-                    <input
-                      type='url'
-                      name='website'
-                      className='w-full bg-[#1a2332] border border-[#1d9bf0] rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#1d9bf0] transition'
-                      value={formData.website}
-                      onChange={handleChange}
-                    />
-                    <div className='flex justify-end gap-2'>
-                      <button
-                        onClick={handleCancel}
-                        className='px-3 py-1 text-xs font-medium text-[#94a3b8] hover:text-white bg-[#161f2e] rounded-lg'
-                      >
-                        Hủy
-                      </button>
-                      <button
-                        onClick={() => handleSave('website')}
-                        className='px-3 py-1 text-xs font-medium text-white bg-[#1d9bf0] hover:bg-sky-400 rounded-lg'
-                      >
-                        Lưu
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className='flex items-center justify-between p-4 bg-[#161f2e]/40 border border-[#233044] rounded-xl group'>
-                    <a
-                      href={formData.website}
-                      target='_blank'
-                      rel='noreferrer'
-                      className='text-[#1d9bf0] hover:underline text-sm truncate pr-2'
-                    >
-                      {formData.website}
-                    </a>
-                    <button
-                      onClick={() => setEditingField('website')}
-                      className='text-[#94a3b8] hover:text-[#1d9bf0] transition-colors shrink-0'
-                    >
-                      <svg className='w-5 h-5' fill='none' stroke='currentColor' strokeWidth='2' viewBox='0 0 24 24'>
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          d='M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z'
-                        ></path>
-                      </svg>
-                    </button>
-                  </div>
-                )}
-              </div>
+
+              <EditableField
+                type='text'
+                editingField='website'
+                activeEditingField={editingField}
+                register={register}
+                onsubmit={onSubmit}
+                onCancel={handleCancelName}
+                onOpenEdit={() => handleOpenEditName('website')}
+                disabled={updateMutation.isPending}
+                isLoading={updateMutation.isPending}
+                me={me}
+                label='Trang Web'
+              />
             </div>
 
             {/* DOB */}
-            <div className='flex flex-col gap-2'>
-              <label className='text-sm font-semibold text-white'>Ngày sinh</label>
-              {editingField === 'date_of_birth' ? (
-                <div className='flex flex-col gap-2'>
-                  <input
-                    type='date'
-                    name='date_of_birth'
-                    className='w-full bg-[#1a2332] border border-[#1d9bf0] rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:ring-1 focus:ring-[#1d9bf0] transition [color-scheme:dark]'
-                    value={formData.date_of_birth}
-                    onChange={handleChange}
-                  />
-                  <div className='flex justify-end gap-2'>
-                    <button
-                      onClick={handleCancel}
-                      className='px-4 py-1.5 text-xs font-medium text-[#94a3b8] hover:text-white bg-[#161f2e] rounded-lg'
-                    >
-                      Hủy
-                    </button>
-                    <button
-                      onClick={() => handleSave('date_of_birth')}
-                      className='px-4 py-1.5 text-xs font-medium text-white bg-[#1d9bf0] hover:bg-sky-400 rounded-lg'
-                    >
-                      Lưu
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className='flex items-center justify-between p-4 bg-[#161f2e]/40 border border-[#233044] rounded-xl group'>
-                  <span className='text-white text-sm'>{formData.date_of_birth}</span>
-                  <button
-                    onClick={() => setEditingField('date_of_birth')}
-                    className='text-[#94a3b8] hover:text-[#1d9bf0] transition-colors'
-                  >
-                    <svg className='w-5 h-5' fill='none' stroke='currentColor' strokeWidth='2' viewBox='0 0 24 24'>
-                      <path
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        d='M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z'
-                      ></path>
-                    </svg>
-                  </button>
-                </div>
-              )}
-            </div>
+            <EditableField
+              type='date'
+              editingField='date_of_birth'
+              activeEditingField={editingField}
+              register={register}
+              onsubmit={onSubmit}
+              onCancel={handleCancelName}
+              onOpenEdit={() => handleOpenEditName('date_of_birth')}
+              disabled={updateMutation.isPending}
+              isLoading={updateMutation.isPending}
+              me={me}
+              label='Ngày Sinh'
+            />
           </div>
         </div>
       </main>

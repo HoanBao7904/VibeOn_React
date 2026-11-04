@@ -35,3 +35,20 @@ export const registerRules = yup.object({
   dob_month: yup.string().optional(),
   dob_year: yup.string().optional()
 })
+
+export const updateMeRule = yup.object({
+  name: yup.string().min(4, 'Tên ít nhất 4 kí tự').max(50, 'Tên tối đa 50 kí tự'),
+  date_of_birth: yup.string().test('isPast', 'Hãy chọn ngày trong quá khứ', (valueDate) => {
+    console.log('date_Of_Birth value:', valueDate)
+    if (!valueDate) return false
+    return new Date(valueDate) <= new Date()
+  }),
+  bio: yup.string().min(1, 'Tên ít nhất 1 kí tự').max(150, 'Tên tối đa 50 kí tự'),
+  location: yup.string(),
+  website: yup.string(),
+  username: yup.string().min(4, 'Tên ít nhất 4 kí tự').max(80, 'Tên tối đa 80 kí tự'),
+  avatar: yup.string(),
+  cover_photo: yup.string()
+})
+
+export type UpdateFormData = yup.InferType<typeof updateMeRule>

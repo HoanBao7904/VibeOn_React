@@ -1,4 +1,4 @@
-import type { getMeResponse, RegisterAndLoginResponse } from '~/types/auth.type'
+import type { getMeResponse, RegisterAndLoginResponse, UpdateMe, UpdateReqBody } from '~/types/auth.type'
 import { http } from '~/utils/http'
 
 const authApi = {
@@ -10,6 +10,9 @@ const authApi = {
   },
   getMeApi() {
     return http.get<getMeResponse>('/users/me')
+  },
+  patchUpdateMe(body: UpdateReqBody) {
+    return http.patch<UpdateMe>('/users/me', body)
   }
 }
 

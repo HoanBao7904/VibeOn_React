@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import authApi from '~/apis/auth.api'
+import Button from '~/components/Button'
 import Input from '~/components/Input'
 import logoImg from '~/imgs/a.png'
 import { registerRules } from '~/rules/auth.rule'
@@ -126,19 +127,7 @@ export default function Login() {
                   <span>Địa chỉ Email</span>
                   <span className='text-gray-500 text-[11px] font-normal'>Bắt buộc</span>
                 </label>
-                {/* <div className='relative flex items-center'>
-                  <input
-                    {...register('email')}
-                    type='email'
-                    placeholder='nguyenhoanbao4@gmail.com'
-                    className='w-full bg-gray-800 px-4 py-2.5 rounded-full text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-gray-700 transition-all duration-150 text-[15px]'
-                  />
 
-                  <span className='material-symbols-outlined text-gray-400 text-[20px] absolute right-4 pointer-events-none'>
-                    alternate_email
-                  </span>
-                </div>
-                {errors.email?.message && <p>{errors.email.message}</p>} */}
                 <Input
                   icon='alternate_email'
                   register={register}
@@ -165,7 +154,6 @@ export default function Login() {
                 <Input
                   name='password' // Bắt buộc phải có name
                   register={register} // Truyền register
-                  rules={{ required: 'Vui lòng nhập mật khẩu' }} // Truyền rules nếu cần
                   type='password' // Bắt buộc để hiện con mắt
                   placeholder='••••••••••••'
                   errorMessage={errors.password?.message} // Truyền lỗi vào
@@ -185,24 +173,23 @@ export default function Login() {
               </div>
 
               {/* Submit */}
-              <button
+              {/* <button
                 type='submit'
                 className='w-full mt-3 py-3 px-6 rounded-full bg-blue-500 hover:bg-blue-400 active:scale-[0.98] text-white font-semibold shadow-lg shadow-blue-500/20 transition-all duration-150 flex items-center justify-center'
               >
                 Đăng nhập
-              </button>
+              </button> */}
+              <Button
+                isLoding={loginMutation.isPending}
+                disabled={loginMutation.isPending}
+                type='submit'
+                className='w-full mt-3 py-3 px-6 rounded-full bg-blue-500 hover:bg-blue-400 active:scale-[0.98] text-white font-semibold shadow-lg shadow-blue-500/20 transition-all duration-150 flex items-center justify-center'
+              >
+                Đăng Nhập
+              </Button>
             </form>
 
             {/* 2FA Info */}
-            {/* <div className='mt-6 p-3 rounded-xl bg-gray-800/50 flex items-center gap-3'>
-              <div className='w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0 text-green-400'>
-                <span className='material-symbols-outlined text-[18px]'>verified_user</span>
-              </div>
-              <div className='flex flex-col'>
-                <span className='text-xs font-semibold text-green-400'>Xác thực 2 lớp (2FA) được kích hoạt</span>
-                <span className='text-[11px] text-gray-400'>Mọi phiên đăng nhập đều được mã hóa bằng SHA-256.</span>
-              </div>
-            </div> */}
 
             {/* Footer */}
             <div className='mt-6 pt-5 border-t border-gray-800 flex items-center justify-center gap-1.5 relative z-10'>

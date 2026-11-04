@@ -21,10 +21,52 @@ export interface errorResponse {
   }
 }
 
+export type Me = {
+  _id?: string
+  name?: string
+  email?: string
+  date_of_birth?: string
+  username?: string
+  bio?: string
+  location?: string
+  website?: string
+  avatar?: string
+  cover_photo?: string
+}
+
 export type getMeResponse = SuccessReponseApi<{
   _id: string
   name: string
   email: string
   date_of_birth: string
   username: string
+  bio?: string
+  location?: string
+  website?: string
+  avatar?: string
+  cover_photo?: string
+}>
+
+export interface UpdateReqBody {
+  name?: string
+  date_of_birth?: string
+  bio?: string
+  location?: string
+  website?: string
+  username?: string
+  avatar?: string
+  cover_photo?: string
+}
+
+export type UpdateMe = SuccessReponseApi<{
+  value: {
+    name?: string
+    date_of_birth?: string
+    bio?: string
+    location?: string
+    website?: string
+    username?: string
+    avatar?: string
+    cover_photo?: string
+  }
 }>

@@ -10,8 +10,6 @@ export default function Me() {
     queryFn: authApi.getMeApi
   })
 
-  console.log('data:', data)
-
   const dataMe = data?.data.result
   console.log(dataMe)
 
