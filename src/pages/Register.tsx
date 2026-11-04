@@ -6,11 +6,12 @@ import authApi from '~/apis/auth.api'
 import type { errorResponse } from '~/types/auth.type'
 import { isAxiosUnprocessableEntityError } from '~/utils/utils'
 import logoImg from '~/imgs/a.png'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { registerRules } from '~/rules/auth.rule'
 import type { Resolver } from 'react-hook-form'
 import Input from '~/components/Input'
+import Button from '~/components/Button'
 
 // type RegisterBody = Omit<FormData, 'dob_day' | 'dob_month' | 'dob_year'>
 interface RegisterBody {
@@ -27,6 +28,8 @@ type FormData = RegisterBody & {
   dob_year?: string
 }
 export default function Register() {
+  const [clause, setClause] = useState<boolean>(false)
+
   const {
     register,
     handleSubmit,
@@ -62,6 +65,11 @@ export default function Register() {
   const navigate = useNavigate()
 
   const onSubmit = handleSubmit((data) => {
+    if (!clause) {
+      toast.error('Vui lòng đồng ý với các điều khoản để đăng ký!')
+      return
+    } // Chặn nếu chưa tick (dù đã disable nút)
+
     // 1. Tách 3 trường dob_ ra để không gửi thừa lên server
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { dob_day, dob_month, dob_year, ...payload } = data
@@ -177,19 +185,6 @@ export default function Register() {
                   icon='person'
                   placeholder='Ví dụ: baonguyendev1'
                 />
-                {/* <div className='relative flex items-center'>
-                  <input
-                    {...register('name')}
-                    type='text'
-                    required
-                    placeholder='Ví dụ: baonguyendev1'
-                    className='w-full bg-gray-800 px-4 py-2.5 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-gray-700 transition-all duration-150 text-[15px]'
-                  />
-                  <span className='material-symbols-outlined text-gray-400 text-[20px] absolute right-3 pointer-events-none'>
-                    person
-                  </span>
-                </div>
-                {errors.name?.message && <p>{errors.name?.message}</p>} */}
               </div>
 
               {/* Email */}
@@ -209,20 +204,6 @@ export default function Register() {
                   icon='mail'
                   placeholder='nguyenhoanbao4@gmail.com'
                 />
-                {/* <div className='relative flex items-center'>
-                  <input
-                    {...register('email')}
-                    type='email'
-                    autoComplete='off'
-                    required
-                    placeholder='nguyenhoanbao4@gmail.com'
-                    className='w-full bg-gray-800 px-4 py-2.5 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-gray-700 transition-all duration-150 text-[15px]'
-                  />
-                  <span className='material-symbols-outlined text-gray-400 text-[20px] absolute right-3 pointer-events-none'>
-                    mail
-                  </span>
-                </div>
-                {errors.email?.message && <p>{errors.email?.message}</p>} */}
               </div>
 
               {/* Password */}
@@ -242,24 +223,7 @@ export default function Register() {
                   icon='visibility'
                   placeholder='Nhập mật khẩu an toàn'
                 />
-                {/* <div className='relative flex items-center'>
-                  <input
-                    {...register('password')}
-                    type='password'
-                    autoComplete='off'
-                    required
-                    placeholder='Nhập mật khẩu an toàn'
-                    className='w-full bg-gray-800 pl-4 pr-11 py-2.5 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-gray-700 transition-all duration-150 text-[15px]'
-                  />
-                  <button
-                    type='button'
-                    aria-label='Toggle password visibility'
-                    className='absolute right-3 text-gray-400 hover:text-white p-1 transition-colors'
-                  >
-                    <span className='material-symbols-outlined text-[20px]'>visibility</span>
-                  </button>
-                </div> */}
-                {/* {errors.password?.message && <p>{errors.password?.message}</p>} */}
+
                 {/* Strength meter */}
                 <div className='grid grid-cols-4 gap-1.5 mt-1'>
                   <div className='h-1 rounded-full bg-gray-700' />
@@ -286,27 +250,6 @@ export default function Register() {
                   icon='visibility_off'
                   placeholder='Nhập lại mật khẩu'
                 />
-                {/* <div className='relative flex items-center'>
-                  <input
-                    id='reg_confirm_password'
-                    {...register('confirm_Password')}
-                    type='password'
-                    required
-                    placeholder='Nhập lại mật khẩu'
-                    className='w-full bg-gray-800 pl-4 pr-11 py-2.5 rounded-xl text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-gray-700 transition-all duration-150 text-[15px]'
-                  />
-                  <div className='absolute right-3 flex items-center gap-1'>
-                   
-                    <button
-                      type='button'
-                      aria-label='Toggle confirm password visibility'
-                      className='text-gray-400 hover:text-white p-1 transition-colors'
-                    >
-                      <span className='material-symbols-outlined text-[20px]'>visibility</span>
-                    </button>
-                  </div>
-                </div>
-                {errors.confirm_Password?.message && <p>{errors.confirm_Password?.message}</p>} */}
               </div>
 
               {/* Date of birth */}
@@ -400,6 +343,8 @@ export default function Register() {
                   <input
                     id='terms_agree'
                     type='checkbox'
+                    checked={clause}
+                    onChange={(e) => setClause(e.target.checked)}
                     required
                     className='peer appearance-none w-4 h-4 rounded border border-gray-600 bg-gray-800 checked:bg-blue-500 checked:border-transparent focus:ring-2 focus:ring-blue-500/40 transition-all cursor-pointer'
                   />
@@ -421,12 +366,14 @@ export default function Register() {
               </div>
 
               {/* Submit */}
-              <button
+              <Button
                 type='submit'
+                isLoding={registerMutation.isPending}
+                disabled={registerMutation.isPending}
                 className='w-full mt-3 py-3 px-6 rounded-full bg-blue-500 hover:bg-blue-400 active:scale-[0.98] text-white font-semibold shadow-lg shadow-blue-500/20 transition-all duration-150 flex items-center justify-center gap-2 group'
               >
                 <span>Đăng ký tài khoản</span>
-              </button>
+              </Button>
             </form>
 
             {/* Footer */}

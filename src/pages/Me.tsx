@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import authApi from '~/apis/auth.api'
 
 const TABS = ['Vibes', 'Câu trả lời', 'Nổi bật', 'Vibe Circle', 'Phương tiện', 'Lượt thích']
@@ -78,12 +79,12 @@ export default function Me() {
             <button className='flex h-10 w-10 items-center justify-center rounded-full bg-[#1b2025] transition-colors hover:bg-[#252a30]'>
               <span className='material-symbols-outlined text-[18px]'>share</span>
             </button>
-            <button
-              onClick={() => setOpenEdit(true)}
-              className='h-10 rounded-full bg-[#30353b] px-4 text-sm font-semibold transition-all hover:bg-[#353a3f] active:scale-95'
+            <Link
+              className='flex h-10 items-center justify-center rounded-full bg-[#30353b] px-5 text-sm font-semibold text-white transition-all hover:bg-[#3f454c] active:scale-95'
+              to={'/me/edit'}
             >
               Chỉnh sửa hồ sơ
-            </button>
+            </Link>
           </div>
         </div>
 
