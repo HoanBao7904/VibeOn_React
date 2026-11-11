@@ -147,9 +147,12 @@ export default function Login() {
                   <label htmlFor='password' className='text-sm font-medium text-gray-400'>
                     Mật khẩu
                   </label>
-                  <a href='#' className='text-xs text-blue-400 hover:text-blue-300 transition-colors'>
+                  <Link
+                    to='/forgot-password'
+                    className='text-sm font-semibold text-blue-400 hover:text-blue-300 hover:underline transition-colors'
+                  >
                     Quên mật khẩu?
-                  </a>
+                  </Link>
                 </div>
 
                 {/* Gọi Component Input ngắn gọn thôi */}

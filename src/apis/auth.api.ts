@@ -19,6 +19,12 @@ const authApi = {
   },
   resendVerifyEmailApi() {
     return http.post<RegisterAndLoginResponse>('users/resend-verify-email')
+  },
+  forgotPassword(body: { email: string }) {
+    return http.post<RegisterAndLoginResponse>('users/forgot-password', body)
+  },
+  resetPassword(body: { forgot_password_token: string; password: string; confirm_Password: string }) {
+    return http.post('users/reset-password', body)
   }
 }
 

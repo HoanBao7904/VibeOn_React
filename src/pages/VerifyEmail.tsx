@@ -32,6 +32,7 @@ export default function VerifyEmail() {
     if (token) {
       verifyMutation.mutate()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token])
 
   return <div>VerifyEmail</div>

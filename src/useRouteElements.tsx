@@ -7,6 +7,8 @@ import EditProfile from './pages/EditProfile'
 import LoginOauth from './pages/LoginOauth'
 import Home from './pages/Home'
 import EmailVerifyPending from './pages/EmailVerifyPending'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
 
 export default function useRouteElements() {
   const routeElement = useRoutes([
@@ -41,6 +43,14 @@ export default function useRouteElements() {
     {
       path: '/verify-email',
       element: <EmailVerifyPending />
+    },
+    {
+      path: '/forgot-password',
+      element: <ForgotPassword />
+    },
+    {
+      path: 'reset-password',
+      element: <ResetPassword />
     }
   ])
   return routeElement

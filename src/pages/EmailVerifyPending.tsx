@@ -71,7 +71,7 @@ export default function EmailVerifyPending() {
 
   const canResend = !isRunning && !resendMutation.isPending
 
-  // --- 3. LOGIC COPY EMAIL ---
+  // LOGIC COPY EMAIL
   const handleCopy = () => {
     navigator.clipboard.writeText(email as string)
     toast.success('Đã sao chép email!')
