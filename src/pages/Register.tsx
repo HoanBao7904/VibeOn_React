@@ -81,7 +81,7 @@ export default function Register() {
 
     registerMutation.mutate(payload, {
       onSuccess: () => {
-        navigate('/login')
+        navigate('/verify-email')
         toast.success('Đăng kí tài khoản thành công')
       },
       onError: (error) => {

@@ -13,6 +13,12 @@ const authApi = {
   },
   patchUpdateMe(body: UpdateReqBody) {
     return http.patch<UpdateMe>('/users/me', body)
+  },
+  verifyEmailApi(email_verify_token: string) {
+    return http.post<RegisterAndLoginResponse>('users/verify-email', { email_verify_token })
+  },
+  resendVerifyEmailApi() {
+    return http.post<RegisterAndLoginResponse>('users/resend-verify-email')
   }
 }
 

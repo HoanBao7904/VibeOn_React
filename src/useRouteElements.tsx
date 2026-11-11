@@ -6,6 +6,7 @@ import MainLayout from './layout/MainLayout/MainLayout'
 import EditProfile from './pages/EditProfile'
 import LoginOauth from './pages/LoginOauth'
 import Home from './pages/Home'
+import EmailVerifyPending from './pages/EmailVerifyPending'
 
 export default function useRouteElements() {
   const routeElement = useRoutes([
@@ -36,6 +37,10 @@ export default function useRouteElements() {
     {
       path: '/me/edit/',
       element: <EditProfile />
+    },
+    {
+      path: '/verify-email',
+      element: <EmailVerifyPending />
     }
   ])
   return routeElement
