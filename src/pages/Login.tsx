@@ -10,6 +10,7 @@ import logoImg from '~/imgs/a.png'
 import { registerRules } from '~/rules/auth.rule'
 import type { errorResponse } from '~/types/auth.type'
 import { setProfile } from '~/utils/auth'
+import { getGoogleOuth } from '~/utils/getGoogleOuth'
 import { isAxiosUnprocessableEntityError } from '~/utils/utils'
 
 const loginSchema = registerRules.pick(['email', 'password'])
@@ -87,6 +88,7 @@ export default function Login() {
             {/* Social Buttons */}
             <div className='flex flex-col gap-2.5 mb-6 relative z-10'>
               <button
+                onClick={() => getGoogleOuth()}
                 type='button'
                 className='w-full flex items-center justify-center gap-3 py-2.5 px-4 rounded-full bg-gray-800 hover:bg-gray-700 text-white transition-all duration-150 active:scale-[0.98] shadow-sm font-medium'
               >
