@@ -49,7 +49,7 @@ export default function useRouteElements() {
       element: <ForgotPassword />
     },
     {
-      path: 'reset-password',
+      path: '/reset-password',
       element: <ResetPassword />
     }
   ])

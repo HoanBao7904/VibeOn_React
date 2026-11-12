@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import authApi from '~/apis/auth.api'
-
+import logoImg from '~/imgs/a.png'
 import { useCountdown } from '~/hooks/useCountdown'
 import { registerRules } from '~/rules/auth.rule'
 import type { errorResponse } from '~/types/auth.type'
@@ -30,6 +30,7 @@ export default function ForgotPassword() {
     resolver: yupResolver(emailRule)
   })
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const emailValue = watch('email')
 
   const { isRunning, secondsLeft, start } = useCountdown(RESEND_COOLDOWN)
@@ -67,18 +68,6 @@ export default function ForgotPassword() {
         <div className='absolute -bottom-32 right-1/4 w-[480px] h-[300px] bg-[#01ba7c]/10 blur-[140px] rounded-full'></div>
       </div>
 
-      {/* Header */}
-      <header className='relative z-10 w-full pt-8 pb-4 flex justify-center items-center'>
-        <div className='flex items-center gap-2'>
-          <div className='w-10 h-10 rounded-full bg-[#1d9bf0] flex items-center justify-center shadow-[0_0_24px_rgba(29,155,240,0.35)]'>
-            <span className='material-symbols-outlined text-[#003354] text-[20px] font-bold'>bolt</span>
-          </div>
-          <span className='text-[24px] font-bold tracking-tight text-white'>
-            Vibe<span className='text-[#1d9bf0]'>On</span>
-          </span>
-        </div>
-      </header>
-
       {/* Main Content */}
       <main className='relative z-10 w-full flex-1 flex flex-col items-center justify-center px-4 py-6'>
         <div className='flex flex-col w-full items-center justify-center relative'>
@@ -95,7 +84,7 @@ export default function ForgotPassword() {
                   <div className='absolute inset-0 bg-[#1d9bf0]/20 rounded-2xl blur-md'></div>
                   <div className='w-20 h-20 rounded-2xl bg-[#0a0f14] flex items-center justify-center relative overflow-hidden shadow-[inset_0_0_20px_rgba(29,155,240,0.15)]'>
                     {/* Logo SVG */}
-                    <svg className='w-14 h-14' fill='none' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'>
+                    {/* <svg className='w-14 h-14' fill='none' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'>
                       <circle
                         cx='40'
                         cy='40'
@@ -150,7 +139,8 @@ export default function ForgotPassword() {
                       ></circle>
                       <circle cx='40' cy='58' fill='#ffffff' r='2.5'></circle>
                       <circle cx='53.5' cy='30' fill='#ff5693' r='2'></circle>
-                    </svg>
+                    </svg> */}
+                    <img src={logoImg} className='w-25 h-25' />
                   </div>
                 </div>
 
@@ -162,16 +152,11 @@ export default function ForgotPassword() {
                 <h1 className='text-[32px] leading-[36px] font-extrabold text-white mb-2 tracking-tight'>
                   Quên mật khẩu?
                 </h1>
-                <p className='text-[15px] text-[#bfc7d3] max-w-md leading-relaxed'>
-                  Đừng lo lắng! Nhập địa chỉ email liên kết với tài khoản VibeOn của bạn. Hệ thống{' '}
-                  <span className='text-white font-semibold'>Amazon SES</span> sẽ gửi cho bạn liên kết khôi phục an
-                  toàn.
-                </p>
               </div>
 
               {/* Dynamic Views */}
               <div className='mt-8 w-full'>
-                {/* 1. FORM STATE */}
+                {/* 1. FORM  */}
 
                 {/* 2. SUCCESS STATE */}
                 {forgotEmailMutation.isSuccess ? (
@@ -265,7 +250,7 @@ export default function ForgotPassword() {
                 )}
               </div>
 
-              {/* Sub-footer Links */}
+              {/*footer Links */}
               <div className='mt-8 pt-6 flex flex-col items-center gap-4 border-t border-[#30353b]'>
                 <Link
                   className='flex items-center gap-1 text-[#1d9bf0] hover:text-[#99cbff] transition-colors font-semibold text-[14px] group'

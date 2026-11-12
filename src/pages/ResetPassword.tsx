@@ -9,7 +9,7 @@ import useQueryParams from '~/hooks/useQueryParams'
 import { registerRules } from '~/rules/auth.rule'
 import type { errorResponse } from '~/types/auth.type'
 import { isAxiosUnprocessableEntityError } from '~/utils/utils'
-
+import logoImg from '~/imgs/a.png'
 interface FormData {
   password: string
   confirm_Password: string
@@ -38,6 +38,7 @@ export default function ResetPassword() {
   })
 
   // Lấy giá trị mật khẩu realtime từ form (thay vì dùng state)
+  // eslint-disable-next-line react-hooks/incompatible-library
   const passwordValue = watch('password') || ''
   const confirmPasswordValue = watch('confirm_Password') || ''
 
@@ -116,32 +117,26 @@ export default function ResetPassword() {
         <div className='absolute -bottom-32 right-1/4 w-[480px] h-[300px] bg-[#01ba7c]/10 blur-[140px] rounded-full'></div>
       </div>
 
-      <header className='relative z-10 w-full pt-8 pb-4 flex justify-center items-center'>
-        <div className='flex items-center gap-2'>
-          <div className='w-10 h-10 rounded-full bg-[#1d9bf0] flex items-center justify-center shadow-[0_0_24px_rgba(29,155,240,0.35)]'>
-            <span className='material-symbols-outlined text-[#003354] text-[20px] font-bold'>bolt</span>
-          </div>
-          <span className='text-[24px] font-bold tracking-tight text-white'>
-            Vibe<span className='text-[#1d9bf0]'>On</span>
-          </span>
-        </div>
-      </header>
-
       <main className='relative z-10 w-full flex-1 flex flex-col items-center justify-center px-4 py-6'>
         <div className='flex flex-col w-full items-center justify-center max-w-xl mx-auto py-2'>
           <div className='relative w-full rounded-2xl bg-[#171c21] shadow-2xl p-6 sm:p-8 overflow-hidden'>
+            <div className='absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#1d9bf0] to-[#ff5693] opacity-85'></div>
+
             <div className='absolute -top-24 left-1/2 -translate-x-1/2 w-80 h-32 bg-[#1d9bf0]/15 blur-[60px] pointer-events-none rounded-full'></div>
 
             {/* NẾU THÀNH CÔNG -> HIỂN THỊ GIAO DIỆN SUCCESS */}
             {resetPasswordMutation.isSuccess ? (
               <div className='relative z-10 flex flex-col items-center text-center py-4 transition-all duration-300'>
-                <div className='relative w-20 h-20 rounded-full bg-[#4adf9d]/15 flex items-center justify-center mb-6 shadow-[0_0_32px_rgba(74,223,157,0.3)]'>
-                  <span
-                    className='material-symbols-outlined text-[44px] text-[#4adf9d]'
-                    style={{ fontVariationSettings: "'FILL' 1" }}
-                  >
-                    check_circle
-                  </span>
+                <div className='relative w-20 h-20 rounded-2xl bg-[#0a0f14] flex items-center justify-center mb-6 shadow-[0_0_28px_rgba(29,155,240,0.25)] overflow-hidden'>
+                  <img src={logoImg} />
+                  <div className='absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#1b2025] flex items-center justify-center text-[#1d9bf0] shadow-md'>
+                    <span
+                      className='material-symbols-outlined text-[13px]'
+                      style={{ fontVariationSettings: "'FILL' 1" }}
+                    >
+                      shield_person
+                    </span>
+                  </div>
                 </div>
                 <div className='inline-flex items-center gap-1 bg-[#4adf9d]/10 text-[#4adf9d] px-3 py-1 rounded-full text-[12px] font-semibold uppercase tracking-wider mb-3'>
                   Hoàn tất bảo mật
@@ -170,61 +165,7 @@ export default function ResetPassword() {
                   <div className='relative flex items-center justify-center mb-4'>
                     <div className='absolute inset-0 bg-[#1d9bf0]/20 rounded-2xl blur-lg'></div>
                     <div className='relative w-20 h-20 rounded-2xl bg-[#0a0f14] flex items-center justify-center shadow-[0_0_28px_rgba(29,155,240,0.25)] overflow-hidden'>
-                      <svg className='w-14 h-14' fill='none' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'>
-                        <circle
-                          cx='50'
-                          cy='50'
-                          r='44'
-                          stroke='#1d9bf0'
-                          strokeDasharray='3 3'
-                          strokeOpacity='0.25'
-                          strokeWidth='1.5'
-                        ></circle>
-                        <path
-                          d='M26 50C30 68 40 78 50 78C60 78 70 68 74 50'
-                          stroke='#1d9bf0'
-                          strokeLinecap='round'
-                          strokeOpacity='0.3'
-                          strokeWidth='3'
-                        ></path>
-                        <path
-                          d='M33 37C35 48 42 66 50 70'
-                          filter='drop-shadow(0 0 6px #00e5ff)'
-                          stroke='#00e5ff'
-                          strokeLinecap='round'
-                          strokeWidth='4.5'
-                        ></path>
-                        <path
-                          d='M26 44C29 55 37 68 44 72'
-                          filter='drop-shadow(0 0 4px #00b4d8)'
-                          stroke='#00b4d8'
-                          strokeLinecap='round'
-                          strokeWidth='3'
-                        ></path>
-                        <path
-                          d='M50 33V68'
-                          filter='drop-shadow(0 0 5px #00f0ff)'
-                          stroke='#00f0ff'
-                          strokeLinecap='round'
-                          strokeWidth='3.5'
-                        ></path>
-                        <path
-                          d='M66 37C63 48 56 66 50 70'
-                          filter='drop-shadow(0 0 6px #b5179e)'
-                          stroke='#b5179e'
-                          strokeLinecap='round'
-                          strokeWidth='4.5'
-                        ></path>
-                        <path
-                          d='M73 44C70 55 62 68 55 72'
-                          filter='drop-shadow(0 0 4px #7209b7)'
-                          stroke='#7209b7'
-                          strokeLinecap='round'
-                          strokeWidth='3'
-                        ></path>
-                        <circle cx='50' cy='70' fill='#ffffff' filter='drop-shadow(0 0 8px #00f0ff)' r='3'></circle>
-                        <circle cx='66' cy='37' fill='#f72585' filter='drop-shadow(0 0 6px #f72585)' r='2.5'></circle>
-                      </svg>
+                      <img src={logoImg} />
                       <div className='absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#1b2025] flex items-center justify-center text-[#1d9bf0] shadow-md'>
                         <span
                           className='material-symbols-outlined text-[13px]'

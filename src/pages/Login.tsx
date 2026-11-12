@@ -71,7 +71,6 @@ export default function Login() {
             {/* Header */}
             <div className='flex flex-col items-center text-center mb-6 relative z-10'>
               <div className='mb-3 flex justify-center items-center'>
-                {/* Thay src bằng ảnh logo của bạn */}
                 <img
                   src={logoImg}
                   alt='VibeOn Logo'

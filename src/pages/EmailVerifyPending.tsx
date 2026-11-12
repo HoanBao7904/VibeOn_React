@@ -9,7 +9,7 @@ import { type errorResponse } from '~/types/auth.type'
 import useQueryParams from '~/hooks/useQueryParams'
 import { useCountdown } from '~/hooks/useCountdown'
 import { AppContext } from '~/contexts/app.contexts'
-
+import logoImg from '~/imgs/a.png'
 const RESEND_COOLDOWN = 60
 
 export default function EmailVerifyPending() {
@@ -92,18 +92,7 @@ export default function EmailVerifyPending() {
           <div className='flex items-center justify-between w-full pb-3'>
             <div className='flex items-center gap-2 text-left'>
               <div className='relative w-9 h-9 rounded-full bg-[#1b2025] flex items-center justify-center p-1.5 shadow-sm'>
-                {/* SVG Logo (giữ nguyên) */}
-                <svg className='w-full h-full' fill='none' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'>
-                  <line stroke='#00f0ff' strokeLinecap='round' strokeWidth='5' x1='50' x2='50' y1='28' y2='70'></line>
-                  <path d='M50 70 Q42 50 32 34' stroke='#00e5ff' strokeLinecap='round' strokeWidth='7'></path>
-                  <path d='M50 70 Q38 58 29 45' stroke='#38bdf8' strokeLinecap='round' strokeWidth='4.5'></path>
-                  <path d='M50 70 Q32 65 24 55' stroke='#38bdf8' strokeLinecap='round' strokeWidth='3'></path>
-                  <path d='M50 70 Q58 50 68 34' stroke='#38bdf8' strokeLinecap='round' strokeWidth='7'></path>
-                  <path d='M50 70 Q62 58 72 45' stroke='#a855f7' strokeLinecap='round' strokeWidth='5.5'></path>
-                  <path d='M50 70 Q68 65 77 55' stroke='#c084fc' strokeLinecap='round' strokeWidth='3.5'></path>
-                  <circle cx='50' cy='70' fill='#ffffff' filter='drop-shadow(0 0 4px #00f0ff)' r='4.5'></circle>
-                  <circle cx='68' cy='34' fill='#f43f5e' r='2.5'></circle>
-                </svg>
+                <img src={logoImg} className='w-25 h-25' />
               </div>
               <div className='flex flex-col'>
                 <span className='font-bold text-[17px] tracking-tight text-white'>
