@@ -5,16 +5,23 @@ import Me from './pages/Me'
 import MainLayout from './layout/MainLayout/MainLayout'
 import EditProfile from './pages/EditProfile'
 import LoginOauth from './pages/LoginOauth'
-import Home from './pages/Home'
+
 import EmailVerifyPending from './pages/EmailVerifyPending'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
+import HomeFeeds from './pages/HomeFeeds'
+
+import CreateTweet from './pages/CreateTweet'
 
 export default function useRouteElements() {
   const routeElement = useRoutes([
     {
       path: '/',
-      element: <Home />
+      element: (
+        <MainLayout>
+          <HomeFeeds />
+        </MainLayout>
+      )
     },
     {
       path: '/register',
@@ -51,6 +58,10 @@ export default function useRouteElements() {
     {
       path: '/reset-password',
       element: <ResetPassword />
+    },
+    {
+      path: '/media',
+      element: <CreateTweet />
     }
   ])
   return routeElement

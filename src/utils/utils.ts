@@ -7,3 +7,12 @@ export function isAxiosError<T>(error: unknown): error is AxiosError<T> {
 export function isAxiosUnprocessableEntityError<FormError>(error: unknown): error is AxiosError<FormError> {
   return isAxiosError(error) && error.response?.status === HttpStatusCode.UnprocessableEntity
 }
+
+const HASHTAG_REGEX = /#([\p{L}\p{N}_]+)/gu
+
+export const extractHashtags = (text: string) => [
+  ...new Set(Array.from(text.matchAll(HASHTAG_REGEX), (m) => m[1].toLowerCase()))
+]
+
+// @ hoặc # phải đứng đầu từ, hỗ trợ tiếng Việt (dùng chung cho composer và feed)
+export const TOKEN_REGEX = /((?<![\p{L}\p{N}_])[#@][\p{L}\p{N}_]+)/gu
