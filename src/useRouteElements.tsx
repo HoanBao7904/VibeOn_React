@@ -11,8 +11,6 @@ import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import HomeFeeds from './pages/HomeFeeds'
 
-import CreateTweet from './pages/CreateTweet'
-
 export default function useRouteElements() {
   const routeElement = useRoutes([
     {
@@ -58,10 +56,6 @@ export default function useRouteElements() {
     {
       path: '/reset-password',
       element: <ResetPassword />
-    },
-    {
-      path: '/media',
-      element: <CreateTweet />
     }
   ])
   return routeElement

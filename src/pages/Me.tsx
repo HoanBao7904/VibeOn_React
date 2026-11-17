@@ -2,17 +2,20 @@ import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import authApi from '~/apis/auth.api'
+import FollowModal from '~/components/FollowModal/FollowModal'
 
 const TABS = ['Vibes', 'Câu trả lời', 'Nổi bật', 'Vibe Circle', 'Phương tiện', 'Lượt thích']
 
 export default function Me() {
+  const [modalType, setModalType] = useState<'follower' | 'following' | null>(null)
   const { data } = useQuery({
     queryKey: ['users/me'],
     queryFn: authApi.getMeApi
   })
 
   const dataMe = data?.data.result
-  console.log(dataMe)
+  const totalFollowers = data?.data.totalFollower
+  const totalFollowings = data?.data.totalFollowing
 
   const name = dataMe?.name ?? 'Người dùng'
   const username = dataMe?.username ?? ''
@@ -89,11 +92,25 @@ export default function Me() {
         </div>
 
         <div className='flex flex-col gap-0.5'>
-          <div className='flex flex-wrap items-center gap-1'>
-            <h1 className='text-2xl font-bold tracking-tight'>{name}</h1>
-            <div className='inline-flex items-center gap-1 rounded-full bg-[#252a30] px-1 py-0.5 text-xs text-[#89919d]'>
-              <span className='material-symbols-outlined text-[14px]'>verified_user</span>
-              <span>Chưa xác minh</span>
+          <div className='flex flex-col gap-1'>
+            <div className='flex flex-wrap items-center gap-1'>
+              <h1 className='text-2xl font-bold tracking-tight'>{name}</h1>
+              <div className='inline-flex items-center gap-1 rounded-full bg-[#252a30] px-1 py-0.5 text-xs text-[#89919d]'>
+                <span className='material-symbols-outlined text-[14px]'>verified_user</span>
+                <span>Chưa xác minh</span>
+              </div>
+            </div>
+
+            <div className='flex items-center gap-4 text-[14px]'>
+              {/* Bấm vào Đang theo dõi -> Mở Modal Following */}
+              <button onClick={() => setModalType('following')} className='text-[#bfc7d3] hover:underline'>
+                <strong className='text-white'>{totalFollowings}</strong> Đang theo dõi
+              </button>
+
+              {/* Bấm vào Người theo dõi -> Mở Modal Follower */}
+              <button onClick={() => setModalType('follower')} className='text-[#bfc7d3] hover:underline'>
+                <strong className='text-white'>{totalFollowers}</strong> Người theo dõi bạn
+              </button>
             </div>
           </div>
           <div className='flex flex-wrap items-center gap-1'>
@@ -107,9 +124,6 @@ export default function Me() {
                 {copied ? 'check' : 'content_copy'}
               </span>
             </button>
-            {/* <span className='rounded bg-[#171c21] px-1 py-0.5 font-mono text-[11px] text-[#89919d]'>
-              ID: {userId.slice(0, 8)}...
-            </span> */}
           </div>
         </div>
 
@@ -285,6 +299,9 @@ export default function Me() {
           </div>
         </div>
       )}
+
+      {/* hiển thị modalFollow */}
+      {modalType && <FollowModal isOpen onClose={() => setModalType(null)} type={modalType} ownerName={name} />}
     </>
   )
 }
