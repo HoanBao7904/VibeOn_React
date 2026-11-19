@@ -67,4 +67,47 @@ export interface Tweet {
   total_page: number
 }
 
-export type GetNewFeeds = SuccessReponseApi<Tweet>
+export interface TweetItem {
+  _id: string
+  user_id: string
+  type: number
+  audience: number
+  content: string
+  parent_id: string | null
+
+  hashtags: string[]
+  mentions: string[]
+
+  medias: {
+    url: string
+    type: number
+  }[]
+
+  guest_views: number
+  user_views: number
+
+  created_at: string
+  updated_at: string
+
+  like_count: number
+  bookmark_count: number
+  comment_count: number
+
+  trending_score: number
+
+  author: {
+    _id: string
+    name: string
+    username: string
+    avatar: string
+  }
+}
+export interface FeedResult {
+  tweets: TweetItem[]
+  limit: number
+  page: number
+  total: number
+  total_page: number
+}
+
+export type GetNewFeeds = SuccessReponseApi<FeedResult>

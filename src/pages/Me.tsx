@@ -3,6 +3,8 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import authApi from '~/apis/auth.api'
 import FollowModal from '~/components/FollowModal/FollowModal'
+import ProfileAvatarUpload from '~/components/ProfileAvatarUpload/ProfileAvatarUpload'
+import ProfileCoverUpload from '~/components/ProfileCoverUpload/ProfileCoverUpload'
 
 const TABS = ['Vibes', 'Câu trả lời', 'Nổi bật', 'Vibe Circle', 'Phương tiện', 'Lượt thích']
 
@@ -20,12 +22,12 @@ export default function Me() {
   const name = dataMe?.name ?? 'Người dùng'
   const username = dataMe?.username ?? ''
 
-  const initials = name
-    .split(' ')
-    .slice(0, 2)
-    .map((w: string) => w[0])
-    .join('')
-    .toUpperCase()
+  // const initials = name
+  //   .split(' ')
+  //   .slice(0, 2)
+  //   .map((w: string) => w[0])
+  //   .join('')
+  //   .toUpperCase()
 
   const birthday = dataMe?.date_of_birth
     ? new Date(dataMe.date_of_birth).toLocaleDateString('vi-VN', {
@@ -48,23 +50,13 @@ export default function Me() {
 
   return (
     <>
-      {/* Thanh điều hướng trên của trang */}
-      <div className='sticky top-0 z-30 flex items-center gap-4 bg-background/85 px-3 py-1 backdrop-blur-xl'>
-        <button className='flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-[#252a30]'>
-          <span className='material-symbols-outlined text-[20px]'>arrow_back</span>
-        </button>
-        <div className='flex min-w-0 flex-col'>
-          <span className='truncate text-[17px] font-bold'>{name}</span>
-          <span className='text-[13px] text-[#bfc7d3]'>0 Vibes</span>
-        </div>
-      </div>
-
       {/* Ảnh bìa */}
       <div className='relative z-0 h-44 w-full overflow-hidden bg-gradient-to-r from-[#0a0f14] via-[#1b2025] to-[#171c21] sm:h-52'>
-        <button className='absolute right-3 top-3 flex items-center gap-1 rounded-full bg-background/80 px-3 py-1 text-xs font-medium backdrop-blur-md transition-colors hover:bg-background'>
+        {/* <button className='absolute right-3 top-3 flex items-center gap-1 rounded-full bg-background/80 px-3 py-1 text-xs font-medium backdrop-blur-md transition-colors hover:bg-background'>
           <span className='material-symbols-outlined text-[16px] text-[#99cbff]'>add_a_photo</span>
           <span>Thêm ảnh bìa</span>
-        </button>
+        </button> */}
+        <ProfileCoverUpload cover={dataMe?.cover_photo} />
       </div>
 
       {/* Thông tin cá nhân */}
@@ -72,8 +64,10 @@ export default function Me() {
         <div className='-mt-16 mb-3 flex items-end justify-between sm:-mt-20'>
           <div className='relative z-20 h-32 w-32 rounded-full bg-background p-1 shadow-xl sm:h-36 sm:w-36'>
             <div className='flex h-full w-full items-center justify-center rounded-full bg-gradient-to-tr from-[#252a30] via-[#1b2025] to-[#30353b]'>
-              <span className='select-none text-[32px] font-black tracking-tight text-[#99cbff]'>{initials}</span>
+              <ProfileAvatarUpload avatar={dataMe?.avatar} />
+              {/* <span className='select-none text-[32px] font-black tracking-tight text-[#99cbff]'>{initials}</span> */}
             </div>
+            {/* <ProfileAvatarUpload avatar={dataMe?.avatar} /> */}
           </div>
           <div className='relative z-20 flex items-center gap-1 pb-1'>
             <button className='flex h-10 w-10 items-center justify-center rounded-full bg-[#1b2025] transition-colors hover:bg-[#252a30]'>

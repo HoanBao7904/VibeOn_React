@@ -31,6 +31,7 @@ export default function HomeFeeds() {
   })
 
   const tweets = data?.data.result.tweets ?? []
+  console.log(tweets)
 
   return (
     <main className='mx-auto min-h-screen w-full max-w-[600px] border-x border-[#30353b]/50 bg-[#0f1419] font-sans text-[#dee3ea]'>
